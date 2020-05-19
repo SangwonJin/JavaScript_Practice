@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bouncing Numbers Game</title>
+        <style>
+            #wrapper {
+                width: 350px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 30px;
+            }
+            #inputSection, #outputSection {
+                width: 150px;
+                vertical-align: text-top;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            #inputValue, #outputValue {
+                width: 80px;
+                margin-left: 10px;
+            }
+            .btn {
+                padding: 5px 15px;
+                height: 35px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                color: #333;
+                background-color: #fff;
+                border-color: #ccc;
+                border-radius: 2px;
+            }
+            .btn:hover {
+                background-color: #eee;
+            }
+            textarea  {
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                font-size: 14px;
+                line-height: 14px;
+            }
+        
+        </style>
+    </head>
+
+    <body>
+        <h2>8. Bouncing Numbers Game</h2>
+        <div id="wrapper">
+            <div id="inputSection">
+                <label>Input</label>
+                <textarea id="inputValue" rows="17" cols="3"></textarea>
+            </div>
+            <div id="outputSection">
+                <label>Output</label>
+                <textarea id="outputValue" rows="17" cols="3"></textarea>
+            </div>
+        </div>
+        <div id="error"></div>
+        <button id="submit" class="btn">Run</button>
+
+        <script type="text/javascript">
+            function $(selector) {
+                return document.querySelector(selector);
+            }
+
+            function BouncingPlayGame(inputValue) {
+                let arrInput = inputValue.split('\n');
+                this.matrix = [];
+                this.matrix.push(arrInput.slice(0,4));
+                this.matrix.push(arrInput.slice(4,8));
+                this.matrix.push(arrInput.slice(8,12));
+                this.matrix.push(arrInput.slice(12,16));
+
+                for (let i = 0; i < this.matrix.length; i++) {
+                    for (let j = 0; j < this.matrix[i].length; j++) {
+                        if (this.matrix[i][j] === '.') {
+                            this.matrix[i][j] = 0;
+                        } else if (!isNaN(this.matrix[i][j])) {
+                            this.matrix[i][j] = parseInt(this.matrix[i][j]);
+                        } else {
+                            throw "Please enter valid move directions";
+                        }
+                    }
+                }
+
+                this.move = arrInput[16];
+
+                this.getResult = function() {
+                    for (let i = 0; i < this.move.length; i++) {
+                        switch(this.move.charAt(i)) {
+                            case 'R': this.moveRight(); break;
+                            case 'L': this.moveLeft(); break;
+                            case 'U': this.moveUp(); break;
+                            case 'D': this.moveDown(); break;
+                            default: 
+                                throw "Please enter valid move directions";
+                        }
+                    }
+                    let result = '';
+                    for (let i = 0; i < this.matrix.length; i++) {
+                        for (let j = 0; j < this.matrix[i].length; j++) {
+                            result += `${this.matrix[i][j] === 0 ? '.' : this.matrix[i][j]}\n`;
+                        }
+                    }
+                    return result;
+                };
+
+                this.moveRight = function() {
+                    for (let i = 0; i < this.matrix.length; i++) {
+                        let arr = this.matrix[i].filter(n => n !== 0);
+                        if (arr.length > 1) {
+                            for (let j = arr.length - 2; j >= 0; j--) {
+                                if (arr[j + 1] === 0) {
+                                    arr[j + 1] = arr[j];
+                                    arr[j] = 0;
+                                } else if (arr[j] === arr[j + 1]) {
+                                    arr[j + 1] += arr[j];
+                                    arr[j] = 0;
+                                }
+                            }
+                        }
+                        arr = arr.filter(n => n !== 0);
+                        this.matrix[i] = arr;
+                        switch (this.matrix[i].length) {
+                            case 0: this.matrix[i].unshift(0,0,0,0); break;
+                            case 1: this.matrix[i].unshift(0,0,0); break;
+                            case 2: this.matrix[i].unshift(0,0); break;
+                            case 3: this.matrix[i].unshift(0); break;
+                            default: break;
+                        }
+                    }
+                };
+
+                this.moveLeft = function() {
+                    for (let i = 0; i < this.matrix.length; i++) {
+                        let arr = this.matrix[i].filter(n => n !== 0);
+                        if (arr.length > 1) {
+                            for (let j = 1; j < arr.length; j++) {
+                                if (arr[j - 1] === 0) {
+                                    arr[j - 1] = arr[j];
+                                    arr[j] = 0;
+                                } else if (arr[j] === arr[j - 1]) {
+                                    arr[j - 1] += arr[j];
+                                    arr[j] = 0;
+                                }
+                            }
+                        }
+                        arr = arr.filter(n => n !== 0);
+                        this.matrix[i] = arr;
+                        switch (this.matrix[i].length) {
+                            case 0: this.matrix[i].push(0,0,0,0); break;
+                            case 1: this.matrix[i].push(0,0,0); break;
+                            case 2: this.matrix[i].push(0,0); break;
+                            case 3: this.matrix[i].push(0); break;
+                            default: break;
+                        }
+                    }
+                };
+
+                this.transpose = function(arr) {
+                    return arr[0].map((col, i) => arr.map(row => row[i]));
+                };
+
+                this.moveUp = function() {
+                    this.matrix = this.transpose(this.matrix);
+                    this.moveLeft();
+                    this.matrix = this.transpose(this.matrix);
+                };
+
+                this.moveDown = function() {
+                    this.matrix = this.transpose(this.matrix);
+                    this.moveRight();
+                    this.matrix = this.transpose(this.matrix);
+                };
+            }
+
+            function playGame() {
+                $('#error').innerHTML = '';
+                let inputValue = $('#inputValue').value;
+                if (inputValue.split('\n').length !== 17) {
+                    $('#error').innerHTML = 'Please enter a valid input';
+                    return;
+                }
+                try {
+                    let game = new BouncingPlayGame(inputValue);
+                    $('#outputValue').innerHTML = game.getResult();
+                } catch (err){
+                    $('#error').innerHTML = err;
+                    return;
+                }
+            }
+
+            $('#submit').addEventListener('click', playGame);
+        </script>
+    </body>
+
+</html>

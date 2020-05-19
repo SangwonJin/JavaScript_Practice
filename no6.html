@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>6. Event Pattern Matching</title>
+        <style>
+            #wrapper {
+                width: 350px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 30px;
+            }
+            #inputSection, #outputSection {
+                width: 150px;
+                vertical-align: text-top;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            #inputValue, #outputValue {
+                width: 80px;
+                margin-left: 10px;
+            }
+            .btn {
+                padding: 5px 15px;
+                height: 35px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                color: #333;
+                background-color: #fff;
+                border-color: #ccc;
+                border-radius: 2px;
+            }
+            .btn:hover {
+                background-color: #eee;
+            }
+            textarea  {
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 2px;
+                font-size: 14px;
+                line-height: 14px;
+            }
+        
+        </style>
+    </head>
+
+    <body>
+        <h2>Event Pattern Matching</h2>
+        <div id="wrapper">
+            <div id="inputSection">
+                <label>Input</label>
+                <textarea id="inputValue" rows="17" cols="3"></textarea>
+            </div>
+            <div id="outputSection">
+                <label>Output</label>
+                <textarea id="outputValue" rows="17" cols="3"></textarea>
+            </div>
+        </div>
+        <div id="error"></div>
+        <button id="submit" class="btn">Run</button>
+
+        <script type="text/javascript">
+            function $(selector) {
+                return document.querySelector(selector);
+            }
+
+            function isValidPattern(pattern) {
+                return pattern.match(/^[A-Z]{1,100}$/);
+            }
+
+            function EventPatternMatching(inputValue) {
+                let arrInput = inputValue.split('\n');
+                
+                if (arrInput[0] && isValidPattern(arrInput[0])) {
+                    this.pattern = arrInput[0];
+                } else {
+                    throw 'invalid pattern';
+                }
+
+                if (arrInput[1] && !isNaN(arrInput[1])) {
+                    this.num = parseInt(arrInput[1]);
+                } else {
+                    throw 'invalid number of strings to be checked';
+                }
+
+                this.strings = [];
+
+                if (arrInput.length !== (2 + this.num)) {
+                    throw 'Number of values are not matching the number of input';
+                } else {
+                    for (let i = 2; i < arrInput.length; i++) {
+                        if (isValidPattern(arrInput[i])) {
+                            this.strings.push(arrInput[i]);
+                        } else {
+                            throw 'invalid pattern';
+                        }
+                    }
+                }
+
+                this.isMatchingPattern = function(pattern) {
+                    let regex = '^[A-Z]{0,99}';
+                    for (let i = 0; i < this.pattern.length; i++) {
+                        regex += `${this.pattern.charAt(i)}[A-Z]{0,99}`;
+                    }
+                    regex = new RegExp(regex);
+                    console.log(regex);
+                    return pattern.match(regex);
+                };
+
+                this.getResult = function() {
+                    let result = '';
+                    let count = 0;
+                    for (let i = 0; i < this.strings.length; i++) {
+                        if (this.isMatchingPattern(this.strings[i])) {
+                            result += 'yes\n';
+                            count++;
+                        } else {
+                            result += 'no\n';
+                        }
+                    }
+                    result += count;
+                    return result;
+                };
+            }
+
+            function matchPattern() {
+                let inputValue = $('#inputValue').value;
+                try {
+                    let game = new EventPatternMatching(inputValue);
+                    $('#outputValue').innerHTML = game.getResult();
+                } catch (err){
+                    $('#error').innerHTML = err;
+                    return;
+                }
+            }
+
+            $('#submit').addEventListener('click', matchPattern);
+        </script>
+    </body>
+
+</html>

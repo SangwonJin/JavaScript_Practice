@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Pattern Matching</title>
+    <style>
+        #wrapper {
+            width: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        #inputSection,
+        #outputSection {
+            width: 150px;
+            vertical-align: text-top;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        #inputValue,
+        #outputValue {
+            width: 80px;
+            margin-left: 10px;
+        }
+
+        .btn {
+            padding: 5px 15px;
+            height: 35px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            color: #333;
+            background-color: #fff;
+            border-color: #ccc;
+            border-radius: 2px;
+        }
+
+        .btn:hover {
+            background-color: #eee;
+        }
+
+        textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            font-size: 14px;
+            line-height: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>7. peaks identification</h2>
+    <div id="wrapper">
+        <div id="inputSection">
+            <label>Input</label>
+            <textarea id="inputValue" rows="17" cols="3"></textarea>
+        </div>
+        <div id="outputSection">
+            <label>Output</label>
+            <textarea id="outputValue" rows="17" cols="3"></textarea>
+        </div>
+    </div>
+    <div id="error"></div>
+    <button id="submit" class="btn">Run</button>
+
+    <script type="text/javascript">
+        function $(selector) {
+            return document.querySelector(selector);
+        }
+
+        function PeakIdentification(inputValue) {
+            let arrInput = inputValue.split('\n');
+
+            if (arrInput[0] && !isNaN(arrInput[0])) {
+                this.num = parseInt(arrInput[0]);
+            } else {
+                throw 'invalid number of strings to be checked';
+            }
+
+            let tempature = [];
+
+            if (arrInput.length !== (1 + this.num)) {
+                throw 'Number of values are not matching the number of input';
+            } else {
+                for (let i = 1; i < arrInput.length; i++) {
+                    if (!isNaN(arrInput[i])) {
+                        tempature.push(arrInput[i]);
+                    } else {
+                        throw 'Input should be number';
+                    }
+                }
+            }
+
+
+            function makeAvgTemp(start, end) {
+                let arr = tempature.slice(start, end);
+                if (arr.length >= 5) {
+                    let avgTemp = 0;
+                    for (let i = 0; i < arr.length; i++) {
+                        avgTemp += parseInt(arr[i]);
+                    }
+                    return (avgTemp / arr.length).toFixed(1);
+                }
+                return null;
+
+            }
+
+            this.getResult = function () {
+                let result = '';
+                const extraTemp = 0.999;
+                for (let i = 0; i < tempature.length; i++) {
+                    let avgTemp = parseFloat(makeAvgTemp(i - 2, i + 3));
+                    if (avgTemp) {
+                        if (tempature[i] > avgTemp + extraTemp) {
+                            console.log(i + 1);
+                            result += (i + 1) + '\n';
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+
+        function matchPattern() {
+            let inputValue = $('#inputValue').value;
+            try {
+                let game = new PeakIdentification(inputValue);
+                $('#outputValue').innerHTML = game.getResult();
+            } catch (err) {
+                $('#error').innerHTML = err;
+                return;
+            }
+        }
+
+
+
+        $('#submit').addEventListener('click', matchPattern);
+    </script>
+</body>
+
+</html>
